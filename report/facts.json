@@ -1,0 +1,92 @@
+{
+  "n_train": 1906,
+  "n_test": 477,
+  "n_features": 66,
+  "balance_train": {
+    "10": 277,
+    "12": 277,
+    "17": 521,
+    "18": 278,
+    "23": 553
+  },
+  "ratio_desbalance": 2.0,
+  "pares_corr_altos": 113,
+  "especies": {
+    "10": "Leptodactylus discodactylus",
+    "12": "Osteocephalus taurinus",
+    "17": "Chiroxiphia lineata",
+    "18": "Saltator grossus",
+    "23": "Pheucticus chrysopeplus"
+  },
+  "pca_n90": 7,
+  "pca_n95": 11,
+  "pca_var_pc1": 53.4,
+  "tiempos_reduccion": {
+    "PCA_s": 0.0012,
+    "tSNE_s": 3.297,
+    "UMAP_s": 8.069
+  },
+  "umap_disponible": true,
+  "tabla_reduccion": [
+    [
+      "PCA(2)",
+      0.0012,
+      67.1
+    ],
+    [
+      "PCA(7)",
+      0.0012,
+      90.0
+    ],
+    [
+      "t-SNE(2)",
+      3.297,
+      null
+    ],
+    [
+      "UMAP(2)",
+      8.069,
+      null
+    ]
+  ],
+  "silhouette_kmeans": [
+    0.388,
+    0.253,
+    0.23,
+    0.16,
+    0.152,
+    0.159,
+    0.168
+  ],
+  "silhouette_gmm": [
+    0.13,
+    0.121,
+    0.024,
+    -0.029,
+    -0.022,
+    -0.021,
+    0.012
+  ],
+  "k_optimo_silhouette": 2,
+  "dbscan_tabla": [
+    [
+      2.5,
+      17,
+      0.42,
+      -0.155
+    ],
+    [
+      3.0,
+      18,
+      0.267,
+      -0.051
+    ],
+    [
+      3.5,
+      11,
+      0.147,
+      0.099
+    ]
+  ],
+  "ari_gmm5_vs_especies": 0.051
+}
