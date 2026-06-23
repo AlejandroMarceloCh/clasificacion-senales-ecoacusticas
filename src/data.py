@@ -1,6 +1,6 @@
-"""Sprint 0 — Carga y preprocesamiento del dataset eco-acustico.
+"""Carga y preprocesamiento del dataset eco-acustico.
 
-Decisiones de ingenieria (ver HALLAZGOS_RECON.md):
+Decisiones de ingenieria:
 - recording_id: SE EXCLUYE  -> 26.9% de IDs de test estan en train (leakage).
 - songtype_id: SE INCLUYE   -> aporta +9.4% F1 (one-hot).
 - is_tp: se descarta como feature -> redundante con mel (+0.6% F1).
@@ -52,7 +52,6 @@ def get_data():
 if __name__ == "__main__":
     tr, te = load_raw()
     X_train, X_test, y_train, y_test, scaler = build_features(tr, te)
-    # --- TEST Sprint 0 ---
     assert X_train.shape[0] == 1906 and X_test.shape[0] == 477, "filas mal"
     assert "recording_id" not in X_train.columns, "recording_id no excluido (leakage)"
     assert abs(X_train[MEL_COLS].to_numpy().mean()) < 1e-6, "scaler no aplicado"
@@ -60,4 +59,4 @@ if __name__ == "__main__":
     assert set(np.unique(y_train)) == {10, 12, 17, 18, 23}, "clases mal"
     print(f"X_train {X_train.shape} | X_test {X_test.shape} | features={X_train.shape[1]}")
     print("balance train:", dict(pd.Series(y_train).value_counts().sort_index()))
-    print("OK Sprint 0")
+    print("OK")

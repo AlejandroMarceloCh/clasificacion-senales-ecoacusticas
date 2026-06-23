@@ -1,4 +1,4 @@
-"""Sprint 1 — EDA + diagrama de arquitectura (C1)."""
+"""EDA + diagrama de arquitectura (C1)."""
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -68,10 +68,9 @@ if __name__ == "__main__":
         "pares_corr_altos": pares,
         "especies": {str(k): v for k, v in SPECIES.items()},
     })
-    # --- TEST Sprint 1 ---
     import os
     for f in ["balance_clases.png", "correlacion_mel.png", "arquitectura_pipeline.png"]:
         assert os.path.exists(FIGS / f), f"falta {f}"
     print("figuras:", os.listdir(FIGS))
     print("ratio desbalance:", facts["ratio_desbalance"], "| pares |r|>0.9:", pares)
-    print("OK Sprint 1")
+    print("OK")

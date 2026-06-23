@@ -14,7 +14,7 @@ def num(x, dec=3):
     return f"{x:.{dec}f}" if isinstance(x, float) else str(x)
 
 
-# --- macros \newcommand (valores crudos; el informe los usa en math mode -> babel pone coma) ---
+# macros \newcommand (valores crudos; el informe los usa en math mode -> babel pone coma)
 M = {
     "nTrain": facts["n_train"], "nTest": facts["n_test"], "nFeat": facts["n_features"],
     "ratioDesb": num(facts["ratio_desbalance"], 1), "paresCorr": facts["pares_corr_altos"],
@@ -46,7 +46,7 @@ def tabla(colspec, header, filas, fname):
            f"{header} \\\\\n\\midrule\n{body}\n\\bottomrule\n\\end{{tabular}}")
     (REPORT / fname).write_text(tex)
 
-# --- tabla reduccion ---
+# tabla reduccion
 filas = []
 for met, t, var in facts["tabla_reduccion"]:
     v = f"{var:.1f}\\%" if var is not None else "---"
@@ -56,14 +56,14 @@ for met, t, var in facts["tabla_reduccion"]:
 tabla("lccc", "Método & Tiempo (s) & Varianza retenida & Estructura preservada",
       filas, "tab_reduccion.tex")
 
-# --- tabla DBSCAN ---
+# tabla DBSCAN
 filas = []
 for eps, nc, ruido, sil in facts["dbscan_tabla"]:
     s = f"${sil}$" if sil is not None else "---"
     filas.append(f"{eps} & {nc} & {ruido*100:.1f}\\% & {s} \\\\")
 tabla("cccc", r"$\varepsilon$ & Clusters & \% ruido & Silhouette", filas, "tab_dbscan.tex")
 
-# --- tabla modelos ---
+# tabla modelos
 filas = [
     rf"MLP (PyTorch)      & $\fMlpCV$ & $\mathbf{{\fMlpTest}}$ & $\latMlp$ \\",
     rf"XGBoost (ensamble) & $\fXgbCV$ & $\fXgbTest$ & $\latXgb$ \\",

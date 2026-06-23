@@ -42,7 +42,7 @@ proba = modelo.predict_proba(X)[0]
 pred = CLASES[int(proba.argmax())]
 pmax = float(proba.max())
 
-# --- semaforo de 3 zonas ---
+# semaforo de 3 zonas
 if pmax >= 0.85:
     zona, color, accion = "VERDE", "#2a9d8f", "Clasificación automática (alta confianza)"
 elif pmax >= 0.40:

@@ -18,9 +18,8 @@ src/            data.py (preproc) · s1_eda · s2_reduccion · s3_clustering · 
 figs/           10 figuras (todas fuente ≥14)
 report/         informe.tex + informe.pdf (4 págs) + facts.json + figs/
 models/         mlp.pt · xgb_scaler.pkl
-app.py          bonus Streamlit (semáforo de umbrales)
+app.py          app Streamlit (semáforo de umbrales)
 run_all.py      reproduce todo el pipeline
-PLAN.md         sprints + tests · HALLAZGOS_RECON.md  análisis previo
 ```
 
 ## Reproducir

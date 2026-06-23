@@ -1,4 +1,4 @@
-"""Sprint 4 — Clasificacion (C4): MLP (PyTorch) vs XGBoost.
+"""Clasificacion (C4): MLP (PyTorch) vs XGBoost.
 Incluye: F1-macro con StratifiedKFold, matrices de confusion, experimento de
 POSICION de Dropout/BatchNorm, evaluacion en el test.csv oficial, loss formal.
 """
@@ -76,7 +76,7 @@ def run():
     ytr_i, yte_i = y_to_idx(y_train), y_to_idx(y_test)
     weights = compute_class_weight("balanced", classes=np.arange(5), y=ytr_i)
 
-    # ===== CV StratifiedKFold (F1-macro) =====
+    # CV StratifiedKFold (F1-macro)
     skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
     f1_mlp_cv, f1_xgb_cv = [], []
     for tr_i, va_i in skf.split(Xtr, ytr_i):
@@ -89,7 +89,7 @@ def run():
         xgb.fit(Xtr[tr_i], ytr_i[tr_i], sample_weight=sw)
         f1_xgb_cv.append(f1_score(ytr_i[va_i], xgb.predict(Xtr[va_i]), average="macro"))
 
-    # ===== Modelos finales + evaluacion en TEST OFICIAL (477) =====
+    # Modelos finales + evaluacion en TEST OFICIAL (477)
     mlp = train_mlp(Xtr, ytr_i, "bn_then_dropout", weights, epochs=140)
     proba_mlp = predict_mlp(mlp, Xte)
     pred_mlp = proba_mlp.argmax(1)
@@ -119,7 +119,7 @@ def run():
         fig.colorbar(im, ax=ax).ax.tick_params(labelsize=14)
         savefig(fig, f"confusion_{nom}.png")
 
-    # ===== Experimento POSICION Dropout/BatchNorm (curvas Loss/epoca) =====
+    # Experimento POSICION Dropout/BatchNorm (curvas Loss/epoca)
     fig, ax = plt.subplots(figsize=(9, 5))
     curvas = {}
     for var, color in [("bn_then_dropout", "#2a9d8f"), ("dropout_then_bn", "#e76f51"),
@@ -164,14 +164,13 @@ Linear & 5   & Softmax & --- \\
         "curvas_dropout_bn_configs": list(curvas.keys()),
         "loss_final_por_config": {k: round(v[-1], 3) for k, v in curvas.items()},
     })
-    # --- TEST Sprint 4 ---
     assert 0.30 <= f1_mlp_test <= 0.65, f"f1 mlp fuera de rango: {f1_mlp_test}"
     assert len(curvas) >= 3, "experimento dropout/bn incompleto"
     assert "f1_macro_test_oficial" in facts
     print(f"MLP  CV={np.mean(f1_mlp_cv):.3f}  test={f1_mlp_test:.3f}")
     print(f"XGB  CV={np.mean(f1_xgb_cv):.3f}  test={f1_xgb_test:.3f}")
     print("loss final por config:", facts["loss_final_por_config"])
-    print("OK Sprint 4")
+    print("OK")
 
 
 if __name__ == "__main__":

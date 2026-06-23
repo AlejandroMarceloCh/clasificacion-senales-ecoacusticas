@@ -1,4 +1,4 @@
-"""Sprint 3 — Clustering (C3): GMM vs DBSCAN, Silhouette, k justificado por metrica."""
+"""Clustering (C3): GMM vs DBSCAN, Silhouette, k justificado por metrica."""
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
@@ -14,7 +14,7 @@ def run():
     X = X_train[MEL_COLS].to_numpy()
     Xp = PCA(n_components=20, random_state=42).fit_transform(X)   # conecta C2->C3
 
-    # --- Silhouette vs k para KMeans y GMM (paradigma centroide vs probabilistico) ---
+    # Silhouette vs k para KMeans y GMM (paradigma centroide vs probabilistico)
     ks = list(range(2, 9))
     sil_km, sil_gmm = [], []
     for k in ks:
@@ -33,7 +33,7 @@ def run():
     ax.set_title("Seleccion de k por Silhouette"); ax.legend()
     savefig(fig, "silhouette_k.png")
 
-    # --- DBSCAN (paradigma de densidad) barriendo eps ---
+    # DBSCAN (paradigma de densidad) barriendo eps
     dbscan_tab = []
     for eps in [2.5, 3.0, 3.5]:
         db = DBSCAN(eps=eps, min_samples=5).fit(Xp)
@@ -44,7 +44,7 @@ def run():
         dbscan_tab.append([eps, n_clusters, round(ruido, 3),
                            round(sil, 3) if sil is not None else None])
 
-    # --- GMM con k=5 vs especies (ARI): clustering NO reconstruye taxonomia ---
+    # GMM con k=5 vs especies (ARI): clustering NO reconstruye taxonomia
     gmm5 = GaussianMixture(n_components=5, covariance_type="full",
                            reg_covar=1e-4, random_state=42).fit(Xp)
     ari = adjusted_rand_score(y_train, gmm5.predict(Xp))
@@ -56,12 +56,11 @@ def run():
         "dbscan_tabla": dbscan_tab,
         "ari_gmm5_vs_especies": round(float(ari), 3),
     })
-    # --- TEST Sprint 3 ---
     assert len(sil_gmm) >= 6, "barrido k incompleto"
     assert len(dbscan_tab) >= 2, "faltan eps de DBSCAN"
     print(f"k optimo (silhouette) = {k_opt} | ARI GMM(5) vs especies = {ari:.3f} (clustering != taxonomia)")
     print("DBSCAN eps/clusters/ruido/sil:", dbscan_tab)
-    print("OK Sprint 3")
+    print("OK")
 
 
 if __name__ == "__main__":

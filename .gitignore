@@ -7,3 +7,11 @@ models/*.pkl
 
 report/figs/
 report/informe.pdf
+
+PLAN.md
+HALLAZGOS_RECON.md
+P2_ML.pdf
+Documentacion_de_dataset.pdf
+report/topologia_tabla.tex
+report/*.aux
+report/*.log

@@ -1,4 +1,4 @@
-"""Sprint 2 — Reduccion de dimensionalidad (C2): PCA vs t-SNE (+UMAP si esta)."""
+"""Reduccion de dimensionalidad (C2): PCA vs t-SNE (+UMAP si esta)."""
 import time
 import numpy as np
 import matplotlib.pyplot as plt
@@ -14,7 +14,7 @@ def run():
     X = X_train[MEL_COLS].to_numpy()
     tabla = []
 
-    # --- PCA ---
+    # PCA
     t0 = time.perf_counter()
     pca_full = PCA().fit(X)
     t_pca = time.perf_counter() - t0
@@ -36,14 +36,14 @@ def run():
     a2.set_title(f"{n90} PC -> 90% | {n95} PC -> 95%")
     savefig(fig, "pca_varianza.png")
 
-    # --- t-SNE sobre PCA(20) para eficiencia ---
+    # t-SNE sobre PCA(20) para eficiencia
     Xp20 = PCA(n_components=20).fit_transform(X)
     t0 = time.perf_counter()
     Xt = TSNE(n_components=2, init="pca", perplexity=30, random_state=42).fit_transform(Xp20)
     t_tsne = time.perf_counter() - t0
     tabla.append(("t-SNE(2)", round(t_tsne, 3), None))
 
-    # --- UMAP opcional ---
+    # UMAP opcional
     Xu = None; t_umap = None
     try:
         from umap import UMAP
@@ -75,11 +75,10 @@ def run():
         "umap_disponible": Xu is not None,
         "tabla_reduccion": [[a, b, c] for a, b, c in tabla],
     })
-    # --- TEST Sprint 2 ---
     assert cumvar[n90-1] >= 0.90
     assert any(t[0].startswith("t-SNE") for t in tabla), "falta t-SNE con tiempo"
     print("PCA 90% var ->", n90, "comp | t-SNE", round(t_tsne, 2), "s | UMAP:", Xu is not None)
-    print("OK Sprint 2")
+    print("OK")
 
 
 if __name__ == "__main__":
