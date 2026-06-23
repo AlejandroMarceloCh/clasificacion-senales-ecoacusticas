@@ -1,0 +1,223 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish,es-noindentfirst]{babel}
+\usepackage[margin=1.9cm]{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{float}
+\usepackage{multicol}
+\usepackage[colorlinks=true,allcolors=blue]{hyperref}
+\graphicspath{{figs/}}
+\captionsetup{font=small,labelfont=bf}
+\setlength{\parskip}{2pt}
+
+\title{\vspace{-1.2cm}\textbf{Clasificación de Señales Eco-Acústicas:\\ un pipeline integral de Machine Learning}}
+\author{CS3061 Machine Learning -- UTEC -- Proyecto 2 (Grupo 8)}
+\date{\vspace{-0.3cm}\small Junio 2026 \quad$\cdot$\quad Repositorio: \texttt{<URL\_GITHUB>}}
+
+\begin{document}
+\maketitle
+\vspace{-0.6cm}
+
+\section{Resumen Ejecutivo e Introducción al Espacio Vectorial}
+La identificación autónoma de especies a partir de su huella acústica es una herramienta
+clave para el biomonitoreo de ecosistemas. Se aborda la clasificación supervisada de
+\textbf{5 especies} (2 anfibios y 3 aves) a partir de descriptores espectrales. El conjunto
+de entrenamiento contiene $N=1906$ observaciones y el de prueba $477$, ambos descritos por
+un vector de características $\mathbf{x}\in\mathbb{R}^{64}$ correspondiente a coeficientes
+\emph{Mel-Frequency Cepstral} (\texttt{mel\_0}--\texttt{mel\_63}). La variable objetivo
+$y\in\{10,12,17,18,23\}$ presenta un \textbf{desbalance moderado de 2:1} (Fig.~\ref{fig:eda}a).
+Tras el análisis de variables auxiliares se incorporó \texttt{songtype\_id} (codificada
+\emph{one-hot}), resultando en un espacio efectivo de $66$ dimensiones.
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.40\textwidth}\includegraphics[width=\linewidth]{balance_clases.png}\caption{}\end{subfigure}\hfill
+\begin{subfigure}{0.40\textwidth}\includegraphics[width=\linewidth]{correlacion_mel.png}\caption{}\end{subfigure}
+\caption{(a) Distribución de clases con desbalance 2:1. (b) Multicolinealidad severa entre
+las 64 características MFCC ($113$ pares con $|r|>0.9$), lo que motiva la reducción de dimensionalidad.}
+\label{fig:eda}
+\end{figure}
+
+\textbf{Decisiones de ingeniería de datos.} Se excluyó \texttt{recording\_id} por inducir
+fuga de información (el $26.9\%$ de los identificadores del conjunto de prueba aparecen en
+entrenamiento). Las características se estandarizaron con \texttt{StandardScaler} ajustado
+\emph{únicamente} sobre el entrenamiento para evitar contaminación del conjunto de prueba.
+La arquitectura completa del pipeline se ilustra en la Fig.~\ref{fig:arq}.
+
+\begin{figure}[H]
+\centering\includegraphics[width=0.93\textwidth]{arquitectura_pipeline.png}
+\caption{Arquitectura del pipeline: desde la ingesta del CSV hasta la política de inferencia con umbrales.}
+\label{fig:arq}
+\end{figure}
+
+\section{Exploración Geométrica y Reducción de Dimensionalidad}
+Se contrastó un método lineal (PCA) frente a dos de variedades múltiples (t-SNE y UMAP).
+El PCA reveló una estructura de baja dimensionalidad intrínseca: \textbf{7 componentes}
+explican el $90\%$ de la varianza y $11$ alcanzan el $95\%$, dominando la primera componente
+con el $53.4\%$ (Fig.~\ref{fig:pca}). La Tabla~\ref{tab:red} reporta los tiempos de ejecución:
+PCA es tres órdenes de magnitud más rápido, mientras que t-SNE y UMAP, aplicados sobre una
+pre-reducción PCA(20), priorizan la preservación de la estructura local a un costo mayor.
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.45\textwidth}\includegraphics[width=\linewidth]{pca_varianza.png}\caption{}\end{subfigure}\hfill
+\begin{subfigure}{0.52\textwidth}\includegraphics[width=\linewidth]{proyecciones_2d.png}\caption{}\end{subfigure}
+\caption{(a) Varianza explicada por componente y acumulada. (b) Proyecciones 2D: las dos
+especies de anfibios tienden a separarse de las aves, pero persiste solapamiento intra-grupo.}
+\label{fig:pca}
+\end{figure}
+
+\begin{table}[H]
+\centering\small
+\begin{tabular}{lccc}
+\toprule
+Método & Tiempo (s) & Varianza retenida & Estructura preservada \\
+\midrule
+PCA(2)  & 0.0012 & 67.1\% & Global \\
+PCA(7)  & 0.0012 & 90.0\% & Global \\
+t-SNE(2) & 3.30 & --- & Local \\
+UMAP(2)  & 8.07 & --- & Local + global \\
+\bottomrule
+\end{tabular}
+\caption{Comparación de métodos de reducción de dimensionalidad (sobre $1906$ muestras).}
+\label{tab:red}
+\end{table}
+
+\section{Minería de Patrones y Estructuras de Clustering}
+Se compararon dos paradigmas: KMeans/GMM (centroide/probabilístico) y DBSCAN (densidad),
+operando sobre la proyección PCA(20). El número de grupos se eligió mediante el
+\textbf{Coeficiente de Silhouette} (Fig.~\ref{fig:clu}), cuyo máximo se ubica en $k=2$,
+sugiriendo que la partición no supervisada más nítida corresponde a la dicotomía
+\emph{anfibios vs.\ aves} antes que a las 5 especies. DBSCAN, barriendo $\varepsilon\in\{2.5,3.0,3.5\}$,
+fragmentó el espacio en $11$--$18$ grupos con ruido decreciente (Tabla~\ref{tab:db}).
+
+\begin{figure}[H]
+\centering\includegraphics[width=0.55\textwidth]{silhouette_k.png}
+\caption{Selección de $k$ por Silhouette para KMeans y GMM. El óptimo en $k=2$ refleja la separación anfibio/ave.}
+\label{fig:clu}
+\end{figure}
+
+\begin{table}[H]
+\centering\small
+\begin{tabular}{cccc}
+\toprule
+$\varepsilon$ & N.º clusters & \% ruido & Silhouette \\
+\midrule
+2.5 & 17 & 42.0\% & $-0.155$ \\
+3.0 & 18 & 26.7\% & $-0.051$ \\
+3.5 & 11 & 14.7\% & $\phantom{-}0.099$ \\
+\bottomrule
+\end{tabular}
+\caption{DBSCAN para distintos $\varepsilon$ (min\_samples$=5$).}
+\label{tab:db}
+\end{table}
+
+\noindent\textbf{Hallazgo.} El índice ARI entre el GMM de 5 componentes y las etiquetas reales
+es de apenas $0.051$: el agrupamiento acústico no supervisado \emph{no reconstruye la taxonomía}.
+Esto evidencia que la separación entre especies cercanas exige información supervisada.
+
+\section{Arquitectura de Clasificación: MLP vs.\ Modelos de Ensamble}
+Se entrenó un Perceptrón Multicapa (MLP) frente a un modelo de ensamble por \emph{gradient
+boosting} (XGBoost). Dada la naturaleza desbalanceada del problema, la métrica primaria es el
+\textbf{F1-Score macro} y la función de pérdida es la \emph{Cross-Entropy ponderada por clase}:
+\begin{equation}
+\mathcal{L} = -\frac{1}{N}\sum_{i=1}^{N}\sum_{c=1}^{5} w_c\, y_{i,c}\,\log \hat{p}_{i,c},
+\qquad w_c = \frac{N}{5\,n_c}.
+\end{equation}
+La topología del MLP se detalla en la Tabla~\ref{tab:topo}. Se validó con
+\texttt{StratifiedKFold} ($5$ particiones) y pesos de clase balanceados en ambos modelos.
+
+\begin{table}[H]
+\centering\small
+\begin{tabular}{llll}
+\toprule
+Capa & Salida & Activación & Regularización \\
+\midrule
+Linear & 256 & ReLU & BatchNorm + Dropout(0.3) \\
+Linear & 128 & ReLU & BatchNorm + Dropout(0.3) \\
+Linear & 64  & ReLU & BatchNorm + Dropout(0.3) \\
+Linear & 5   & Softmax & --- \\
+\bottomrule
+\end{tabular}
+\caption{Topología del MLP ($66\to256\to128\to64\to5$).}
+\label{tab:topo}
+\end{table}
+
+\textbf{Regularización.} Se evaluó empíricamente la \emph{posición relativa} de Dropout y
+BatchNorm sobre las curvas de pérdida (Fig.~\ref{fig:modelos}a). La configuración sin
+regularización minimiza la pérdida de entrenamiento ($0.39$) pero a costa de sobreajuste;
+las variantes regularizadas convergen a pérdidas mayores ($0.67$--$0.73$) y mejor generalización.
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.40\textwidth}\includegraphics[width=\linewidth]{curvas_dropout_bn.png}\caption{}\end{subfigure}\hfill
+\begin{subfigure}{0.28\textwidth}\includegraphics[width=\linewidth]{confusion_mlp.png}\caption{}\end{subfigure}\hfill
+\begin{subfigure}{0.28\textwidth}\includegraphics[width=\linewidth]{confusion_xgb.png}\caption{}\end{subfigure}
+\caption{(a) Impacto de la posición de Dropout/BatchNorm en la pérdida. (b)--(c) Matrices de
+confusión sobre el conjunto de prueba oficial para MLP y XGBoost; la confusión se concentra
+entre especies acústicamente cercanas.}
+\label{fig:modelos}
+\end{figure}
+
+\begin{table}[H]
+\centering\small
+\begin{tabular}{lccc}
+\toprule
+Modelo & F1-macro (CV) & F1-macro (test oficial) & Latencia (ms/muestra) \\
+\midrule
+MLP (PyTorch)      & $0.536$ & $\mathbf{0.575}$ & $0.0009$ \\
+XGBoost (ensamble) & $0.489$ & $0.536$ & $0.0075$ \\
+\bottomrule
+\end{tabular}
+\caption{Comparación de modelos. El MLP supera al ensamble en F1-macro y latencia.}
+\label{tab:modelos}
+\end{table}
+
+El MLP obtiene el mejor desempeño (F1-macro $=0.575$ en prueba, Tabla~\ref{tab:modelos}),
+consistente con la dificultad intrínseca estimada en el análisis exploratorio. Las matrices
+de confusión (Fig.~\ref{fig:modelos}b--c) confirman que el error se concentra en pares de
+especies con solapamiento espectral, no en un sesgo hacia la clase mayoritaria.
+
+\section{Decisiones de Ingeniería y Mitigación de Riesgos}
+\textbf{Trade-off costo--rendimiento.} El MLP no solo iguala sino que supera al ensamble en
+calidad ($+0.039$ F1-macro) con una latencia $8\times$ menor ($0.0009$ vs.\ $0.0075$ ms/muestra),
+ampliamente dentro de cualquier SLA operativo. Se selecciona por tanto como modelo de despliegue.
+
+\textbf{Política de moderación por umbrales.} Sobre el vector de probabilidades \emph{softmax}
+se define una política de tres zonas (Fig.~\ref{fig:umb}): \textbf{Verde} ($P\ge0.85$,
+clasificación automática), \textbf{Amarilla} ($0.40\le P<0.85$, derivación a auditoría humana)
+y \textbf{Roja} ($P<0.40$, descarte por ruido). La distribución de cobertura medida es
+$24.5\%$ / $67.1\%$ / $8.4\%$ respectivamente; la zona verde alcanza una exactitud del
+$76.1\%$ pese al F1-macro global moderado. Descartar la zona roja eleva el F1-macro de
+$0.536$ a $0.569$, validando cuantitativamente el umbral inferior.
+
+\begin{figure}[H]
+\centering\includegraphics[width=0.55\textwidth]{umbrales_zonas.png}
+\caption{Distribución de confianza del modelo y zonas operativas de decisión.}
+\label{fig:umb}
+\end{figure}
+
+\section*{Contribution Statement}
+\addcontentsline{toc}{section}{Contribution Statement}
+\begin{table}[H]
+\centering\small
+\begin{tabular}{p{4.5cm}cp{7cm}}
+\toprule
+\textbf{Integrante} & \textbf{\% Contrib.} & \textbf{Tareas encargadas} \\
+\midrule
+Integrante 1 & 25\% & EDA, preprocesamiento, reducción de dimensionalidad \\
+Integrante 2 & 25\% & Clustering, métricas internas, redacción \\
+Integrante 3 & 25\% & Modelado MLP/XGBoost, experimentos de regularización \\
+Integrante 4 & 25\% & MLOps, umbrales, informe y repositorio \\
+\bottomrule
+\end{tabular}
+\caption{Matriz de coevaluación del equipo (completar con nombres reales).}
+\end{table}
+
+\end{document}

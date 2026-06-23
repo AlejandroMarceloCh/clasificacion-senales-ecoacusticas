@@ -34,20 +34,23 @@ def fig_corr(tr):
 
 def fig_arquitectura():
     """Diagrama de arquitectura del pipeline (C1), generado con matplotlib (sin deps externas)."""
-    fig, ax = plt.subplots(figsize=(12, 2.6))
+    fig, ax = plt.subplots(figsize=(14, 2.4))
     ax.axis("off")
-    etapas = ["CSV\n(1906x68)", "Preproceso\nscaler+songtype", "Reduccion\nPCA/t-SNE",
-              "Clustering\nGMM/DBSCAN", "Clasificacion\nMLP vs XGB", "Umbrales\n3 zonas", "Inferencia"]
-    n = len(etapas); w = 1.0 / n
-    for i, txt in enumerate(etapas):
+    etapas = [("CSV", "1906x68"), ("Preproceso", "scaler+songtype"), ("Reduccion", "PCA / t-SNE"),
+              ("Clustering", "GMM / DBSCAN"), ("Clasificacion", "MLP vs XGB"),
+              ("Umbrales", "3 zonas"), ("Inferencia", "")]
+    n = len(etapas); w = 1.0 / n; pad = 0.18 * w
+    for i, (tit, sub) in enumerate(etapas):
         x = i * w
-        ax.add_patch(plt.Rectangle((x + 0.008, 0.25), w - 0.016, 0.5,
+        ax.add_patch(plt.Rectangle((x + pad/2, 0.22), w - pad, 0.56,
                      facecolor="#264653" if i % 2 == 0 else "#2a9d8f", edgecolor="black"))
-        ax.text(x + w/2, 0.5, txt, ha="center", va="center", color="white", fontsize=14)
+        ax.text(x + w/2, 0.57, tit, ha="center", va="center", color="white", fontsize=14)
+        if sub:
+            ax.text(x + w/2, 0.40, sub, ha="center", va="center", color="white", fontsize=11)
         if i < n - 1:
-            ax.annotate("", xy=(x + w + 0.002, 0.5), xytext=(x + w - 0.006, 0.5),
+            ax.annotate("", xy=(x + w + pad/2 - 0.004, 0.5), xytext=(x + w - pad/2 + 0.004, 0.5),
                         arrowprops=dict(arrowstyle="->", lw=2))
-    ax.set_xlim(0, 1); ax.set_ylim(0, 1)
+    ax.set_xlim(-0.01, 1.01); ax.set_ylim(0, 1)
     ax.set_title("Arquitectura del pipeline de clasificacion eco-acustica", fontsize=16)
     return savefig(fig, "arquitectura_pipeline.png")
 
