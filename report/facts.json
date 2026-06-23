@@ -88,5 +88,46 @@
       0.099
     ]
   ],
-  "ari_gmm5_vs_especies": 0.051
+  "ari_gmm5_vs_especies": 0.051,
+  "f1_macro_mlp_cv": [
+    0.54,
+    0.495,
+    0.549,
+    0.561,
+    0.534
+  ],
+  "f1_macro_xgb_cv": [
+    0.465,
+    0.468,
+    0.499,
+    0.497,
+    0.513
+  ],
+  "f1_macro_mlp_cv_mean": 0.536,
+  "f1_macro_xgb_cv_mean": 0.489,
+  "f1_macro_mlp_test": 0.575,
+  "f1_macro_xgb_test": 0.536,
+  "f1_macro_test_oficial": 0.575,
+  "loss_formula_tex": "\\mathcal{L} = -\\frac{1}{N}\\sum_{i=1}^{N}\\sum_{c=1}^{5} w_c\\, y_{i,c}\\log \\hat{p}_{i,c}",
+  "topologia": "64->256->128->64->5 (ReLU, BatchNorm, Dropout 0.3)",
+  "curvas_dropout_bn_configs": [
+    "bn_then_dropout",
+    "dropout_then_bn",
+    "sin_reg"
+  ],
+  "loss_final_por_config": {
+    "bn_then_dropout": 0.734,
+    "dropout_then_bn": 0.671,
+    "sin_reg": 0.389
+  },
+  "zonas_pct": {
+    "verde": 0.245,
+    "amarillo": 0.671,
+    "rojo": 0.084
+  },
+  "acc_zona_verde": 0.761,
+  "f1_sin_filtro": 0.536,
+  "f1_filtrando_rojo": 0.569,
+  "latencia_ms_xgb": 0.0075,
+  "latencia_ms_mlp": 0.0009
 }
