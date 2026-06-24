@@ -6,7 +6,6 @@ models/*.pt
 models/*.pkl
 
 report/figs/
-report/informe.pdf
 
 PLAN.md
 HALLAZGOS_RECON.md
