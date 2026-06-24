@@ -11,9 +11,9 @@ SPECIES = {10: "Leptodactylus discodactylus (anfibio)", 12: "Osteocephalus tauri
            23: "Pheucticus chrysopeplus (ave)"}
 CLASES = [10, 12, 17, 18, 23]
 
-st.set_page_config(page_title="Clasificador Eco-Acustico", page_icon="🐸", layout="centered")
-st.title("🐦 Clasificador de Señales Eco-Acústicas")
-st.caption("CS3061 · Proyecto 2 · Inferencia con política de moderación por umbrales")
+st.set_page_config(page_title="Clasificador Eco-Acustico", layout="centered")
+st.title("Clasificador de Señales Eco-Acústicas")
+st.caption("CS3061 - Proyecto 2 - Inferencia con politica de umbrales")
 
 @st.cache_resource
 def cargar():
@@ -47,11 +47,11 @@ c1.metric("Especie predicha", f"#{pred}")
 c1.write(SPECIES[pred])
 c2.metric("Confianza (P máx)", f"{pmax*100:.1f}%")
 st.markdown(f"<div style='background:{color};padding:14px;border-radius:8px;color:white;"
-            f"font-weight:bold;font-size:18px'>Zona {zona} — {accion}</div>", unsafe_allow_html=True)
+            f"font-weight:bold;font-size:18px'>Zona {zona} - {accion}</div>", unsafe_allow_html=True)
 
 st.subheader("Distribución de probabilidad por especie")
 df = pd.DataFrame({"especie": [SPECIES[c] for c in CLASES], "probabilidad": proba})
 st.bar_chart(df.set_index("especie"))
 
-st.caption("Umbrales: Verde P≥85% · Amarillo 40–85% · Rojo <40%. "
+st.caption("Umbrales: verde si P>=85%, amarillo entre 40 y 85%, rojo si es menor a 40%. "
            "Especie real de este registro: #" + str(int(fila["species_id"])))

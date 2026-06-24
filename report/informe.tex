@@ -85,7 +85,7 @@ especies de anfibios tienden a separarse de las aves, pero persiste solapamiento
 Se compararon dos paradigmas: KMeans/GMM (centroide/probabilístico) y DBSCAN (densidad),
 operando sobre la proyección PCA(20). El número de grupos se eligió mediante el
 \textbf{Coeficiente de Silhouette} (Fig.~\ref{fig:clu}), cuyo máximo se ubica en $k=2$,
-sugiriendo que la partición no supervisada más nítida corresponde a la dicotomía
+lo que muestra que la partición más clara es la dicotomía
 \emph{anfibios vs.\ aves} antes que a las 5 especies. DBSCAN, barriendo $\varepsilon\in\{2.5,3.0,3.5\}$,
 fragmentó el espacio con ruido decreciente (Tabla~\ref{tab:db}).
 
@@ -104,7 +104,7 @@ fragmentó el espacio con ruido decreciente (Tabla~\ref{tab:db}).
 
 \noindent\textbf{Hallazgo.} El índice ARI entre el GMM de 5 componentes y las etiquetas reales
 es de apenas $\ari$: el agrupamiento acústico no supervisado \emph{no reconstruye la taxonomía}.
-Esto evidencia que la separación entre especies cercanas exige información supervisada.
+Esto muestra que separar especies parecidas necesita información supervisada.
 
 \section{Arquitectura de Clasificación: MLP vs.\ Modelos de Ensamble}
 Se entrenó un Perceptrón Multicapa (MLP) frente a un modelo de ensamble por \emph{gradient
@@ -161,9 +161,9 @@ de confusión (Fig.~\ref{fig:modelos}b--c) confirman que el error se concentra e
 especies con solapamiento espectral, no en un sesgo hacia la clase mayoritaria.
 
 \section{Decisiones de Ingeniería y Mitigación de Riesgos}
-\textbf{Trade-off costo--rendimiento.} El MLP no solo iguala sino que supera al ensamble en
+\textbf{Relación costo-rendimiento.} El MLP supera al ensamble en
 calidad ($+\deltaMLP$ F1-macro) con una latencia $\factorLat\times$ menor ($\latMlp$ vs.\ $\latXgb$ ms/muestra),
-ampliamente dentro de cualquier SLA operativo. Se selecciona por tanto como modelo de despliegue.
+suficientemente rápida para uso en tiempo real. Se eligió entonces como modelo de despliegue.
 
 \textbf{Política de moderación por umbrales.} Sobre el vector de probabilidades \emph{softmax}
 se define una política de tres zonas (Fig.~\ref{fig:umb}): \textbf{Verde} ($P\ge0.85$,

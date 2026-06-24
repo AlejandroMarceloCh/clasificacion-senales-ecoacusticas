@@ -1,46 +1,46 @@
-# Clasificación de Señales Eco-Acústicas — CS3061 Proyecto 2 (Grupo 8)
+# Clasificación de señales eco-acústicas (CS3061 - Proyecto 2)
 
-Pipeline integral de Machine Learning que clasifica **5 especies** (2 anfibios + 3 aves)
-a partir de 64 coeficientes MFCC (X ∈ ℝ⁶⁴). Curso CS3061 Machine Learning, UTEC.
+Pipeline de Machine Learning para clasificar 5 especies (2 anfibios y 3 aves) a partir
+de 64 coeficientes MFCC. Curso CS3061 Machine Learning, UTEC.
 
 ## Resultados
-| Modelo | F1-macro (CV) | F1-macro (test oficial) | Latencia |
+| Modelo | F1-macro (CV) | F1-macro (test) | Latencia |
 |---|---|---|---|
-| **MLP (PyTorch)** | 0.536 | **0.575** | 0.0009 ms/muestra |
+| MLP (PyTorch) | 0.536 | 0.575 | 0.0009 ms/muestra |
 | XGBoost | 0.489 | 0.536 | 0.0075 ms/muestra |
 
-El MLP es el modelo de despliegue. Las especies cercanas se solapan acústicamente,
-lo que limita el F1-macro alcanzable.
+Usamos el MLP como modelo final. Hay especies que suenan muy parecido, así que el
+F1-macro no llega muy alto.
 
 ## Estructura
 ```
-src/            data.py (preproc) · s1_eda · s2_reduccion · s3_clustering · s4_modelos · s5_umbrales
-figs/           10 figuras (todas fuente ≥14)
-report/         informe.tex + informe.pdf (4 págs) + facts.json + figs/
-models/         mlp.pt · xgb_scaler.pkl
-app.py          app Streamlit (semáforo de umbrales)
-run_all.py      reproduce todo el pipeline
+src/        data.py, s1_eda, s2_reduccion, s3_clustering, s4_modelos, s5_umbrales
+figs/       figuras del informe
+report/     informe.tex, informe.pdf, facts.json
+models/     mlp.pt, xgb_scaler.pkl
+app.py      app de Streamlit
+run_all.py  corre todo el pipeline
 ```
 
-## Reproducir
+## Cómo correrlo
 ```bash
 python3 -m venv venv && ./venv/bin/pip install -r requirements.txt
-KMP_DUPLICATE_LIB_OK=TRUE OMP_NUM_THREADS=1 ./venv/bin/python run_all.py   # pipeline completo
-cd report && tectonic informe.tex                                          # compilar informe
-./venv/bin/streamlit run app.py                                            # app bonus
+KMP_DUPLICATE_LIB_OK=TRUE OMP_NUM_THREADS=1 ./venv/bin/python run_all.py
+cd report && tectonic informe.tex
+./venv/bin/streamlit run app.py
 ```
-> Nota macOS: las env vars `KMP_DUPLICATE_LIB_OK`/`OMP_NUM_THREADS` evitan un segfault
-> por la libomp duplicada entre PyTorch y XGBoost.
+En Mac hay que poner las variables KMP_DUPLICATE_LIB_OK y OMP_NUM_THREADS para que no
+se cuelgue por un choque entre las librerías de PyTorch y XGBoost.
 
-## Decisiones de ingeniería de datos
-- **`recording_id` excluido**: 26.9% de IDs de test están en train (fuga de información).
-- **`songtype_id` incluido** (one-hot): aporta +9.4% F1-macro.
-- **`StandardScaler`** ajustado solo en train (sin contaminar el test).
-- Métrica primaria **F1-macro** (no Accuracy) por el desbalance 2:1; `class_weight` balanceado.
+## Notas sobre los datos
+- Sacamos `recording_id` porque varios IDs del test también están en el train.
+- Agregamos `songtype_id` como variable porque sube el F1.
+- El `StandardScaler` se ajusta solo con el train.
+- Usamos F1-macro y `class_weight` balanceado porque las clases están desbalanceadas.
 
-## Pipeline por criterio de rúbrica
-1. **C1** Diagrama de arquitectura + espacio vectorial ℝ⁶⁴.
-2. **C2** PCA (7 comp = 90% var) vs t-SNE vs UMAP, con tiempos.
-3. **C3** GMM vs DBSCAN + Silhouette; ARI=0.05 → el clustering no reconstruye la taxonomía.
-4. **C4** MLP vs XGBoost, F1-macro, matrices de confusión, experimento de posición Dropout/BatchNorm.
-5. **C5** Política de umbrales (Verde 24.5% / Amarillo 67.1% / Rojo 8.4%) + trade-off latencia/F1.
+## Qué hace cada etapa
+1. Diagrama de la arquitectura y descripción de los datos de entrada.
+2. Reducción de dimensionalidad con PCA, t-SNE y UMAP, con sus tiempos.
+3. Clustering con GMM y DBSCAN usando Silhouette.
+4. Modelos MLP y XGBoost comparados por F1-macro y matrices de confusión.
+5. Umbrales de confianza (verde, amarillo y rojo) y comparación de latencia.

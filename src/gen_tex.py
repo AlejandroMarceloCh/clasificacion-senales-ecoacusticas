@@ -61,4 +61,4 @@ tabla("lccc", "Modelo & F1-macro (CV) & F1-macro (test oficial) & Latencia (ms/m
       filas, "tab_modelos.tex")
 
 print("Generado: datos.tex (%d macros), tab_reduccion.tex, tab_dbscan.tex, tab_modelos.tex" % len(M))
-print("F1 MLP test (dinamico):", M["fMlpTest"])
+print("F1 MLP test:", M["fMlpTest"])
