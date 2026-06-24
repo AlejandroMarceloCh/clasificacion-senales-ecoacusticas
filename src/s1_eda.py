@@ -1,4 +1,4 @@
-"""EDA + diagrama de arquitectura (C1)."""
+"""Analisis exploratorio y diagrama de arquitectura."""
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -33,7 +33,7 @@ def fig_corr(tr):
 
 
 def fig_arquitectura():
-    """Diagrama de arquitectura del pipeline (C1), generado con matplotlib (sin deps externas)."""
+    """Diagrama de arquitectura del pipeline."""
     fig, ax = plt.subplots(figsize=(14, 2.4))
     ax.axis("off")
     etapas = [("CSV", "1906x68"), ("Preproceso", "scaler+songtype"), ("Reduccion", "PCA / t-SNE"),

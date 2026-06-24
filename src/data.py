@@ -1,11 +1,4 @@
-"""Carga y preprocesamiento del dataset eco-acustico.
-
-Decisiones de ingenieria:
-- recording_id: SE EXCLUYE  -> 26.9% de IDs de test estan en train (leakage).
-- songtype_id: SE INCLUYE   -> aporta +9.4% F1 (one-hot).
-- is_tp: se descarta como feature -> redundante con mel (+0.6% F1).
-- mel_0..mel_63: StandardScaler fiteado SOLO en train (sin fuga al test).
-"""
+"""Carga y preprocesamiento del dataset."""
 import numpy as np
 import pandas as pd
 from pathlib import Path
@@ -27,13 +20,11 @@ def load_raw():
 
 
 def build_features(tr, te):
-    """Devuelve X_train, X_test (escalados, con songtype one-hot), y_train, y_test, scaler."""
-    # one-hot de songtype_id (alineando columnas train/test)
     st_tr = pd.get_dummies(tr["songtype_id"], prefix="songtype")
     st_te = pd.get_dummies(te["songtype_id"], prefix="songtype")
     st_te = st_te.reindex(columns=st_tr.columns, fill_value=0)
 
-    scaler = StandardScaler().fit(tr[MEL_COLS])          # FIT solo en train
+    scaler = StandardScaler().fit(tr[MEL_COLS])
     Xtr_mel = pd.DataFrame(scaler.transform(tr[MEL_COLS]), columns=MEL_COLS, index=tr.index)
     Xte_mel = pd.DataFrame(scaler.transform(te[MEL_COLS]), columns=MEL_COLS, index=te.index)
 
@@ -52,11 +43,10 @@ def get_data():
 if __name__ == "__main__":
     tr, te = load_raw()
     X_train, X_test, y_train, y_test, scaler = build_features(tr, te)
-    assert X_train.shape[0] == 1906 and X_test.shape[0] == 477, "filas mal"
-    assert "recording_id" not in X_train.columns, "recording_id no excluido (leakage)"
-    assert abs(X_train[MEL_COLS].to_numpy().mean()) < 1e-6, "scaler no aplicado"
-    assert scaler.n_samples_seen_ == 1906, "scaler vio el test (fuga)"
-    assert set(np.unique(y_train)) == {10, 12, 17, 18, 23}, "clases mal"
+    assert X_train.shape[0] == 1906 and X_test.shape[0] == 477
+    assert "recording_id" not in X_train.columns
+    assert abs(X_train[MEL_COLS].to_numpy().mean()) < 1e-6
+    assert scaler.n_samples_seen_ == 1906
+    assert set(np.unique(y_train)) == {10, 12, 17, 18, 23}
     print(f"X_train {X_train.shape} | X_test {X_test.shape} | features={X_train.shape[1]}")
     print("balance train:", dict(pd.Series(y_train).value_counts().sort_index()))
-    print("OK")

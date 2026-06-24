@@ -1,7 +1,4 @@
-"""Clasificacion (C4): MLP (PyTorch) vs XGBoost.
-Incluye: F1-macro con StratifiedKFold, matrices de confusion, experimento de
-POSICION de Dropout/BatchNorm, evaluacion en el test.csv oficial, loss formal.
-"""
+"""MLP (PyTorch) frente a XGBoost: validacion cruzada, matrices de confusion y curvas de entrenamiento."""
 import time
 import numpy as np
 import matplotlib.pyplot as plt
@@ -20,7 +17,7 @@ CLASES = [10, 12, 17, 18, 23]
 
 
 class MLP(nn.Module):
-    """64->256->128->64->5. variante controla la posicion de Dropout/BatchNorm."""
+    """Red 64->256->128->64->5. variante elige el orden de Dropout y BatchNorm."""
     def __init__(self, n_in, variante="bn_then_dropout"):
         super().__init__()
         dims = [n_in, 256, 128, 64]
@@ -76,7 +73,7 @@ def run():
     ytr_i, yte_i = y_to_idx(y_train), y_to_idx(y_test)
     weights = compute_class_weight("balanced", classes=np.arange(5), y=ytr_i)
 
-    # CV StratifiedKFold (F1-macro)
+    # Validacion cruzada estratificada
     skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
     f1_mlp_cv, f1_xgb_cv = [], []
     for tr_i, va_i in skf.split(Xtr, ytr_i):
@@ -89,7 +86,7 @@ def run():
         xgb.fit(Xtr[tr_i], ytr_i[tr_i], sample_weight=sw)
         f1_xgb_cv.append(f1_score(ytr_i[va_i], xgb.predict(Xtr[va_i]), average="macro"))
 
-    # Modelos finales + evaluacion en TEST OFICIAL (477)
+    # Modelos finales evaluados en el conjunto de prueba
     mlp = train_mlp(Xtr, ytr_i, "bn_then_dropout", weights, epochs=140)
     proba_mlp = predict_mlp(mlp, Xte)
     pred_mlp = proba_mlp.argmax(1)
@@ -119,7 +116,7 @@ def run():
         fig.colorbar(im, ax=ax).ax.tick_params(labelsize=14)
         savefig(fig, f"confusion_{nom}.png")
 
-    # Experimento POSICION Dropout/BatchNorm (curvas Loss/epoca)
+    # Curvas de entrenamiento variando el orden de Dropout y BatchNorm
     fig, ax = plt.subplots(figsize=(9, 5))
     curvas = {}
     for var, color in [("bn_then_dropout", "#2a9d8f"), ("dropout_then_bn", "#e76f51"),
@@ -145,7 +142,7 @@ Linear & 5   & Softmax & --- \\
 \end{tabular}"""
     (save_facts.__globals__["REPORT"] / "topologia_tabla.tex").write_text(topo)
 
-    # serializar para Streamlit/umbrales
+    # guardar modelos
     import joblib
     torch.save(mlp.state_dict(), save_facts.__globals__["BASE"] / "models/mlp.pt")
     joblib.dump({"xgb": xgb, "scaler": scaler}, save_facts.__globals__["BASE"] / "models/xgb_scaler.pkl")

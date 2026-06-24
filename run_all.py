@@ -1,6 +1,4 @@
-"""Reproduce todo el pipeline en orden (Sprints 0-5). Genera figuras y report/facts.json.
-Uso:  KMP_DUPLICATE_LIB_OK=TRUE OMP_NUM_THREADS=1 ./venv/bin/python run_all.py
-"""
+"""Reproduce el pipeline completo y genera figuras y facts.json."""
 import os, sys, runpy
 os.environ.setdefault("KMP_DUPLICATE_LIB_OK", "TRUE")
 os.environ.setdefault("OMP_NUM_THREADS", "1")

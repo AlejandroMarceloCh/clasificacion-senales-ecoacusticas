@@ -1,6 +1,4 @@
-"""Estilo global de figuras. CRITICO: fuente >=14 en todo (penalizacion -3 si <14).
-Tambien helpers para acumular metricas en report/facts.json.
-"""
+"""Estilo de figuras y utilidades para guardar metricas."""
 import json
 from pathlib import Path
 import matplotlib
@@ -12,7 +10,6 @@ FIGS = BASE / "figs"
 REPORT = BASE / "report"
 FACTS = REPORT / "facts.json"
 
-# Fuente base 15 (margen sobre el minimo 14 exigido)
 plt.rcParams.update({
     "font.size": 15,
     "axes.titlesize": 16,
@@ -30,7 +27,6 @@ def savefig(fig, name):
     out = FIGS / name
     fig.savefig(out)
     plt.close(fig)
-    # verificacion anti -3pts: ningun texto de ejes <14
     return str(out)
 
 

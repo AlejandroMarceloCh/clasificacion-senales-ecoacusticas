@@ -1,7 +1,4 @@
-"""Genera report/datos.tex (macros) y los cuerpos de tabla desde report/facts.json.
-Asi el informe es 100% dinamico: re-correr el pipeline actualiza todos los numeros.
-Uso:  ./venv/bin/python src/gen_tex.py
-"""
+"""Genera datos.tex y las tablas del informe a partir de facts.json."""
 import json
 from pathlib import Path
 
@@ -14,7 +11,6 @@ def num(x, dec=3):
     return f"{x:.{dec}f}" if isinstance(x, float) else str(x)
 
 
-# macros \newcommand (valores crudos; el informe los usa en math mode -> babel pone coma)
 M = {
     "nTrain": facts["n_train"], "nTest": facts["n_test"], "nFeat": facts["n_features"],
     "ratioDesb": num(facts["ratio_desbalance"], 1), "paresCorr": facts["pares_corr_altos"],
@@ -40,7 +36,7 @@ datos = "\n".join(rf"\newcommand{{\{k}}}{{{v}}}" for k, v in M.items()) + "\n"
 (REPORT / "datos.tex").write_text(datos)
 
 def tabla(colspec, header, filas, fname):
-    """Emite un bloque tabular COMPLETO (evita el cruce \\input/\\bottomrule)."""
+    """Construye un bloque tabular completo."""
     body = "\n".join(filas)
     tex = (rf"\begin{{tabular}}{{{colspec}}}" "\n\\toprule\n"
            f"{header} \\\\\n\\midrule\n{body}\n\\bottomrule\n\\end{{tabular}}")

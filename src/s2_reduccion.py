@@ -1,4 +1,4 @@
-"""Reduccion de dimensionalidad (C2): PCA vs t-SNE (+UMAP si esta)."""
+"""Reduccion de dimensionalidad: PCA, t-SNE y UMAP."""
 import time
 import numpy as np
 import matplotlib.pyplot as plt

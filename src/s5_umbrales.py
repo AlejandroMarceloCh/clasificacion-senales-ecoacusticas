@@ -1,4 +1,4 @@
-"""Umbrales y trade-offs (C5): politica de 3 zonas + costo/rendimiento."""
+"""Politica de umbrales y comparacion de costo y rendimiento."""
 import time
 import numpy as np
 import matplotlib.pyplot as plt

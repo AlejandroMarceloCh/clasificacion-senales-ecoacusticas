@@ -1,6 +1,4 @@
-"""Bonus Streamlit (+2): inferencia simulada con escenarios reales del test + semaforo de umbrales.
-Uso:  ./venv/bin/streamlit run app.py
-"""
+"""App de inferencia con escenarios de ejemplo y semaforo de umbrales."""
 import numpy as np
 import pandas as pd
 import joblib

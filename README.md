@@ -9,8 +9,8 @@ a partir de 64 coeficientes MFCC (X ∈ ℝ⁶⁴). Curso CS3061 Machine Learnin
 | **MLP (PyTorch)** | 0.536 | **0.575** | 0.0009 ms/muestra |
 | XGBoost | 0.489 | 0.536 | 0.0075 ms/muestra |
 
-El MLP es el modelo de despliegue. La tarea es intrínsecamente difícil (las especies
-cercanas se solapan acústicamente); el valor está en el análisis, no en un número inflado.
+El MLP es el modelo de despliegue. Las especies cercanas se solapan acústicamente,
+lo que limita el F1-macro alcanzable.
 
 ## Estructura
 ```
