@@ -1,4 +1,3 @@
-"""Analisis exploratorio y diagrama de arquitectura."""
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -6,7 +5,6 @@ from style import savefig, save_facts, FIGS
 from data import load_raw, get_data, SPECIES, TIPO, MEL_COLS
 
 COLORS = {10: "#2a9d8f", 12: "#264653", 17: "#e9c46a", 18: "#f4a261", 23: "#e76f51"}
-
 
 def fig_balance(tr):
     vc = tr["species_id"].value_counts().sort_index()
@@ -20,7 +18,6 @@ def fig_balance(tr):
     ax.set_title("Distribucion de clases (desbalance 2:1)")
     return savefig(fig, "balance_clases.png"), dict(vc)
 
-
 def fig_corr(tr):
     corr = tr[MEL_COLS].corr().abs()
     fig, ax = plt.subplots(figsize=(7, 6))
@@ -31,9 +28,7 @@ def fig_corr(tr):
     pares_altos = int((np.triu(corr.values, 1) > 0.9).sum())
     return savefig(fig, "correlacion_mel.png"), pares_altos
 
-
 def fig_arquitectura():
-    """Diagrama de arquitectura del pipeline."""
     fig, ax = plt.subplots(figsize=(14, 2.4))
     ax.axis("off")
     etapas = [("CSV", "1906x68"), ("Preproceso", "scaler+songtype"), ("Reduccion", "PCA / t-SNE"),
@@ -53,7 +48,6 @@ def fig_arquitectura():
     ax.set_xlim(-0.01, 1.01); ax.set_ylim(0, 1)
     ax.set_title("Arquitectura del pipeline de clasificacion eco-acustica", fontsize=16)
     return savefig(fig, "arquitectura_pipeline.png")
-
 
 if __name__ == "__main__":
     tr, te = load_raw()

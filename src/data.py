@@ -1,4 +1,3 @@
-"""Carga y preprocesamiento del dataset."""
 import numpy as np
 import pandas as pd
 from pathlib import Path
@@ -12,12 +11,10 @@ SPECIES = {10: "Leptodactylus discodactylus", 12: "Osteocephalus taurinus",
            17: "Chiroxiphia lineata", 18: "Saltator grossus", 23: "Pheucticus chrysopeplus"}
 TIPO = {10: "Anfibio", 12: "Anfibio", 17: "Ave", 18: "Ave", 23: "Ave"}
 
-
 def load_raw():
     tr = pd.read_csv(DATA / "eco_acoustic_train.csv")
     te = pd.read_csv(DATA / "eco_acoustic_test.csv")
     return tr, te
-
 
 def build_features(tr, te):
     st_tr = pd.get_dummies(tr["songtype_id"], prefix="songtype")
@@ -34,11 +31,9 @@ def build_features(tr, te):
     y_test = te["species_id"].to_numpy()
     return X_train, X_test, y_train, y_test, scaler
 
-
 def get_data():
     tr, te = load_raw()
     return build_features(tr, te)
-
 
 if __name__ == "__main__":
     tr, te = load_raw()

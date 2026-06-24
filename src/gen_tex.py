@@ -1,4 +1,3 @@
-"""Genera datos.tex y las tablas del informe a partir de facts.json."""
 import json
 from pathlib import Path
 
@@ -6,10 +5,8 @@ BASE = Path(__file__).resolve().parent.parent
 REPORT = BASE / "report"
 facts = json.loads((REPORT / "facts.json").read_text())
 
-
 def num(x, dec=3):
     return f"{x:.{dec}f}" if isinstance(x, float) else str(x)
-
 
 M = {
     "nTrain": facts["n_train"], "nTest": facts["n_test"], "nFeat": facts["n_features"],
@@ -36,13 +33,11 @@ datos = "\n".join(rf"\newcommand{{\{k}}}{{{v}}}" for k, v in M.items()) + "\n"
 (REPORT / "datos.tex").write_text(datos)
 
 def tabla(colspec, header, filas, fname):
-    """Construye un bloque tabular completo."""
     body = "\n".join(filas)
     tex = (rf"\begin{{tabular}}{{{colspec}}}" "\n\\toprule\n"
            f"{header} \\\\\n\\midrule\n{body}\n\\bottomrule\n\\end{{tabular}}")
     (REPORT / fname).write_text(tex)
 
-# tabla reduccion
 filas = []
 for met, t, var in facts["tabla_reduccion"]:
     v = f"{var:.1f}\\%" if var is not None else "---"
@@ -52,14 +47,12 @@ for met, t, var in facts["tabla_reduccion"]:
 tabla("lccc", "Método & Tiempo (s) & Varianza retenida & Estructura preservada",
       filas, "tab_reduccion.tex")
 
-# tabla DBSCAN
 filas = []
 for eps, nc, ruido, sil in facts["dbscan_tabla"]:
     s = f"${sil}$" if sil is not None else "---"
     filas.append(f"{eps} & {nc} & {ruido*100:.1f}\\% & {s} \\\\")
 tabla("cccc", r"$\varepsilon$ & Clusters & \% ruido & Silhouette", filas, "tab_dbscan.tex")
 
-# tabla modelos
 filas = [
     rf"MLP (PyTorch)      & $\fMlpCV$ & $\mathbf{{\fMlpTest}}$ & $\latMlp$ \\",
     rf"XGBoost (ensamble) & $\fXgbCV$ & $\fXgbTest$ & $\latXgb$ \\",

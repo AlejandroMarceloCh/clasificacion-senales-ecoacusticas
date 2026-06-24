@@ -1,4 +1,3 @@
-"""Estilo de figuras y utilidades para guardar metricas."""
 import json
 from pathlib import Path
 import matplotlib
@@ -22,19 +21,16 @@ plt.rcParams.update({
     "savefig.bbox": "tight",
 })
 
-
 def savefig(fig, name):
     out = FIGS / name
     fig.savefig(out)
     plt.close(fig)
     return str(out)
 
-
 def load_facts():
     if FACTS.exists():
         return json.loads(FACTS.read_text())
     return {}
-
 
 def save_facts(d):
     REPORT.mkdir(exist_ok=True)

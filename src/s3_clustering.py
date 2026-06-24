@@ -1,4 +1,3 @@
-"""Clustering con KMeans, GMM y DBSCAN."""
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
@@ -8,13 +7,11 @@ from sklearn.metrics import silhouette_score, adjusted_rand_score
 from style import savefig, save_facts
 from data import get_data, MEL_COLS
 
-
 def run():
     X_train, X_test, y_train, y_test, scaler = get_data()
     X = X_train[MEL_COLS].to_numpy()
     Xp = PCA(n_components=20, random_state=42).fit_transform(X)
 
-    # Silhouette para cada k con KMeans y GMM
     ks = list(range(2, 9))
     sil_km, sil_gmm = [], []
     for k in ks:
@@ -33,7 +30,6 @@ def run():
     ax.set_title("Seleccion de k por Silhouette"); ax.legend()
     savefig(fig, "silhouette_k.png")
 
-    # DBSCAN para distintos eps
     dbscan_tab = []
     for eps in [2.5, 3.0, 3.5]:
         db = DBSCAN(eps=eps, min_samples=5).fit(Xp)
@@ -44,7 +40,6 @@ def run():
         dbscan_tab.append([eps, n_clusters, round(ruido, 3),
                            round(sil, 3) if sil is not None else None])
 
-    # comparacion de los grupos con las especies reales (ARI)
     gmm5 = GaussianMixture(n_components=5, covariance_type="full",
                            reg_covar=1e-4, random_state=42).fit(Xp)
     ari = adjusted_rand_score(y_train, gmm5.predict(Xp))
@@ -61,7 +56,6 @@ def run():
     print(f"k optimo (silhouette) = {k_opt} | ARI GMM(5) vs especies = {ari:.3f} (clustering != taxonomia)")
     print("DBSCAN eps/clusters/ruido/sil:", dbscan_tab)
     print("OK")
-
 
 if __name__ == "__main__":
     run()
